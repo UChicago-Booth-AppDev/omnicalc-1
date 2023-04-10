@@ -54,11 +54,17 @@ end
 
 def calculate_payment
 
-  @apr = params.fetch("user_apr").to_f.round(4)
-  # @apr_perc = @apr / 100.0
+  @apr = params.fetch("user_apr").to_f
+  @apr_perc = @apr / 100.0
+  @apr_final_form = @apr.to_s(:percentage, {:precision => 4})
+  @monthly_apr = @apr_perc / 12.0
   @num_years = params.fetch("user_years").to_i
+  @num_months = @num_years * 12.0
   @principal = params.fetch("user_principal").to_i
-  @payment = "test"
+  @principal_final_form = @principal.to_s(:currency, {:precision => 2})
+  @payment_numerator = (@principal * @monthly_apr)
+  @payment_denominator = 1 - ((1+@monthly_apr)**((-1)*@num_months))
+  @payment = (@payment_numerator / @payment_denominator).to_s(:currency, {:precision => 2})
 
   render({ :template => "calculation_templates/payment_results.html.erb"})
 end
